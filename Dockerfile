@@ -1,5 +1,5 @@
 FROM debian:jessie
-MAINTAINER Peter Schmitt "pschmitt@gmail.com"
+MAINTAINER Ian Blenke "ian@blenke.com"
 
 # Inspired by
 #  - https://hub.docker.com/r/nopz/mapserver/
@@ -17,11 +17,48 @@ RUN apt-get install -y \
     supervisor \
     -y --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
-COPY gdal-build.sh /tmp/gdal-build.sh
-RUN sh /tmp/gdal-build.sh
+ARG GDAL_VERSION=2.3.1
+ENV GDAL_VERSION=${GDAL_VERSION}
 
-COPY mapserver-build.sh /tmp/mapserver-build.sh
-RUN sh /tmp/mapserver-build.sh
+RUN curl -sL http://download.osgeo.org/gdal/${GDAL_VERSION}/gdal-${GDAL_VERSION}.tar.gz | tar zxv -C /tmp \
+ && cd /tmp/gdal-${GDAL_VERSION} \
+ && ./configure \
+    --prefix=/usr \
+    --with-threads \
+    --with-hide-internal-symbols=yes \
+    --with-rename-internal-libtiff-symbols=yes \
+    --with-rename-internal-libgeotiff-symbols=yes \
+    --with-libtiff=internal \
+    --with-geotiff=internal \
+    --with-geos \
+    --with-pg \
+    --with-curl \
+    --with-static-proj4=yes \
+    --with-ecw=no \
+    --with-grass=no \
+    --with-hdf5=no \
+    --with-java=no \
+    --with-mrsid=no \
+    --with-perl=no \
+    --with-python=no \
+    --with-webp=no \
+    --with-xerces=no \
+ && make -j $(nproc) \
+ && make install \
+ && cd .. \
+ && rm -fr /tmp/gdal-${GDAL_VERSION}
+
+ARG MAPSERVER_VERSION=7.2.0
+ENV MAPSERVER_VERSION=${MAPSERVER_VERSION}
+
+RUN curl -sL http://download.osgeo.org/mapserver/mapserver-${MAPSERVER_VERSION}.tar.gz | tar zxv -C /tmp \
+ && mkdir -p /tmp/mapserver-${MAPSERVER_VERSION}/build \
+ && cd /tmp/mapserver-${MAPSERVER_VERSION}/build \
+ && cmake .. -DWITH_GDAL=1 -DWITH_CURL=1 -DWITH_CAIRO=0 -DWITH_GIF=0 -DWITH_PROTOBUFC=0 \
+ && make -j $(nproc) \
+ && make install \
+ && cd .. \
+ && rm -fr /tmp/mapserver-${MAPSERVER_VERSION}/build
 
 RUN rm /etc/nginx/sites-enabled/default
 ADD etc /etc
@@ -30,4 +67,4 @@ RUN mkdir -p /usr/src
 COPY mapfiles /usr/src/mapfiles
 
 EXPOSE 80
-CMD sh -c "/usr/bin/supervisord"
+CMD /usr/bin/supervisord
