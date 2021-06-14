@@ -8,5 +8,5 @@ services:
       args:
         GDAL_VERSION: ${GDAL_VERSION}
         MAPSERVER_VERSION: ${MAPSERVER_VERSION}
-    image: sofwerx/mapserver:${MAPSERVER_VERSION}
+    image: mcerolini/mapserver:${MAPSERVER_VERSION}
 
