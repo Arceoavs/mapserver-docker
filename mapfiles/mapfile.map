@@ -1,39 +1,44 @@
 MAP
 	OUTPUTFORMAT
-		NAME png24
-		DRIVER "AGG/PNG"
-		MIMETYPE "image/png"
-		IMAGEMODE RGB
-		EXTENSION "png"
-	END
+      NAME "GEOTIFF_FLOAT"
+      DRIVER 'GDAL/GTiff'
+      MIMETYPE 'image/tiff'
+      IMAGEMODE FLOAT32
+      EXTENSION 'tif'
+    END
 	
 	OUTPUTFORMAT
-		NAME jpeg
-		DRIVER "AGG/JPEG"
-		MIMETYPE "image/jpeg"
-		IMAGEMODE RGB
-		EXTENSION "jpg"
-	END
+        NAME "bil"
+        DRIVER "GDAL/EHdr"
+        MIMETYPE "application/bil32"
+        IMAGEMODE FLOAT32
+        EXTENSION "bil"
+    END
+
+    OUTPUTFORMAT
+        NAME "bil"
+        DRIVER "GDAL/EHdr"
+        MIMETYPE "image/x-bil;bits=32"
+        IMAGEMODE FLOAT32
+        EXTENSION "bil"
+    END
+
+    OUTPUTFORMAT
+        NAME "bil"
+        DRIVER "GDAL/EHdr"
+        MIMETYPE "application/bil16"
+        IMAGEMODE INT16
+        EXTENSION "bil"
+      END
 	
-	# How to return GeoJSON for Mapserver vector layers?
-	# http://mapserver.org/output/ogr_output.html
-	# https://github.com/mapserver/msautotest/blob/master/wxs/wfs_ogr.map
-	OUTPUTFORMAT
-		NAME "geojson"
-		DRIVER "OGR/GEOJSON"
-		MIMETYPE "application/json; subtype=geojson"
-		FORMATOPTION "STORAGE=memory"
-		FORMATOPTION "FORM=SIMPLE"
-		FORMATOPTION "LCO:WRITE_BBOX=YES"
-	END
 	
-	IMAGETYPE PNG24
-	IMAGECOLOR 255 255 255
+	#IMAGETYPE FLOAT32
+	#IMAGECOLOR 255 255 255
 
 	# Write log to /var/log/mapserver.stderr (make sure the file exists) to see error log.
 	CONFIG "MS_ERRORFILE" "stderr"
 	#CONFIG "MS_ERRORFILE" "/var/log/mapserver.stderr"
-	INCLUDE "aws_credentials.inc.map"
+	#INCLUDE "aws_credentials.inc.map"
 	CONFIG "CPL_VSIL_CURL_ALLOWED_EXTENSIONS" ".tif" # .shp .shx .dbf .qix .cpg .prj
 	CONFIG "VSI_CACHE" "TRUE"
 	# cache size in bytes
@@ -45,11 +50,11 @@ MAP
 		# Performance optimization: Instead of specifying 4326, set all the Proj4 parameters directly.
 		# http://mapserver.org/optimization/mapfile.html#projections
 		# http://spatialreference.org/ref/epsg/4326/proj4/
-		#"init=epsg:4326"
-		"proj=longlat"
-		"ellps=WGS84"
-		"datum=WGS84"
-		"no_defs"
+		"init=epsg:4326"
+		#"proj=longlat"
+		#"ellps=WGS84"
+		#"datum=WGS84"
+		#"no_defs"
 	END
 
 	WEB
@@ -74,45 +79,20 @@ MAP
 	MAXSIZE 4096
 
 	LAYER
-		NAME		raster_layer_lowres
-		GROUP		raster_layer
+		NAME		dem_africa
+		GROUP		dem
 		METADATA
-			"ows_title"	"raster_layer_lowres"
+			"ows_title"	"dem_africa"
 			"ows_srs"	"epsg:4326"
 		END
 		#DATA		"/vsicurl/http://pschmitt-test.s3-website-us-east-1.amazonaws.com/lowres/mosaic_z13.tif"
-		DATA		"/vsis3/pschmitt-test/lowres/mosaic_z13.tif"
-		STATUS		OFF
+		DATA		"/vsicurl/http://dsm2.alia-space.com:8080/africa.tif"
+		STATUS		ON
 		TYPE		RASTER
 
 		MINSCALEDENOM 31250
 	END
 
-	LAYER
-		NAME		raster_layer_hires
-		GROUP		raster_layer
-		METADATA
-			"ows_title"	"raster_layer_hires"
-			"ows_srs"	"epsg:4326"
-		END
-		TILEINDEX       "/usr/src/mapfiles/tile_index.shp"
-		STATUS		OFF
-		TYPE		RASTER
-		MINSCALEDENOM 0
-		MAXSCALEDENOM 31249
-	END
 
-	LAYER
-		NAME cutlines
-		TYPE LINE
-		STATUS OFF
-		#DATA "/vsicurl/http://pschmitt-test.s3-website-us-east-1.amazonaws.com/bucket-o-tiffs/cutlines.shp"
-		DATA "/vsis3/pschmitt-test/bucket-o-tiffs/cutlines.shp"
-		CLASS
-			STYLE
-				WIDTH 2
-				COLOR 0 255 0
-			END
-		END
-	END
+	
 END # mapfile
