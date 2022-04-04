@@ -1,0 +1,37 @@
+# NOT USED! FOR REFERENCE ONLY!
+
+# Create with:
+# kubectl create configmap mapfile-configmap --from-file=mapfile.map --dry-run=client -o yaml
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mapfile-config
+data:
+  mapfile.map:
+    "MAP\n\tOUTPUTFORMAT\n      NAME \"GEOTIFF_FLOAT\"\n      DRIVER 'GDAL/GTiff'\n
+    \     MIMETYPE 'image/tiff'\n      IMAGEMODE FLOAT32\n      EXTENSION 'tif'\n
+    \   END\n\t\n\tOUTPUTFORMAT\n        NAME \"bil\"\n        DRIVER \"GDAL/EHdr\"\n
+    \       MIMETYPE \"application/bil32\"\n        IMAGEMODE FLOAT32\n        EXTENSION
+    \"bil\"\n    END\n\n    OUTPUTFORMAT\n        NAME \"bil\"\n        DRIVER \"GDAL/EHdr\"\n
+    \       MIMETYPE \"image/x-bil;bits=32\"\n        IMAGEMODE FLOAT32\n        EXTENSION
+    \"bil\"\n    END\n\n    OUTPUTFORMAT\n        NAME \"bil\"\n        DRIVER \"GDAL/EHdr\"\n
+    \       MIMETYPE \"application/bil16\"\n        IMAGEMODE INT16\n        EXTENSION
+    \"bil\"\n      END\n\t\n\t\n\t#IMAGETYPE FLOAT32\n\t#IMAGECOLOR 255 255 255\n\n\t#
+    Write log to /var/log/mapserver.stderr (make sure the file exists) to see error
+    log.\n\tCONFIG \"MS_ERRORFILE\" \"stderr\"\n\t#CONFIG \"MS_ERRORFILE\" \"/var/log/mapserver.stderr\"\n\t#INCLUDE
+    \"aws_credentials.inc.map\"\n\tCONFIG \"CPL_VSIL_CURL_ALLOWED_EXTENSIONS\" \".tif\"
+    # .shp .shx .dbf .qix .cpg .prj\n\tCONFIG \"VSI_CACHE\" \"TRUE\"\n\t# cache size
+    in bytes\n\tCONFIG \"VSI_CACHE_SIZE\" \"50000000\"\n\n\tEXTENT -180 -90 180 90\n\n\tPROJECTION\n\t\t#
+    Performance optimization: Instead of specifying 4326, set all the Proj4 parameters
+    directly.\n\t\t# http://mapserver.org/optimization/mapfile.html#projections\n\t\t#
+    http://spatialreference.org/ref/epsg/4326/proj4/\n\t\t\"init=epsg:4326\"\n\t\t#\"proj=longlat\"\n\t\t#\"ellps=WGS84\"\n\t\t#\"datum=WGS84\"\n\t\t#\"no_defs\"\n\tEND\n\n\tWEB\n\t\t#
+    Uncomment the following and run `touch /var/log/mapserver_output.log` to see access
+    log.\n\t\t#LOG /var/log/mapserver_output.log\n\n\t\t# Note: You should configure
+    your webserver (ie. NGINX) to use\n\t\t# proxy_pass to forward all Mapserver traffic
+    to\n\t\t# localhost:8080. Otherwise, edit ows_onlineresource\n\t\t# accordingly.\n\t\tMETADATA\n\t\t\t\"ows_title\"
+    \"raster_layer\"\n\t\t\t\"ows_onlineresource\" \"http://localhost:8000?\"\n\t\t\t\"ows_srs\"
+    \"EPSG:4326\"\n\t\t\t\"ows_enable_request\" \"*\"\n\t\t\t\"wms_srs\" \"EPSG:4326\"\n\t\t\t\"wms_feature_info_mime_type\"
+    \"text/html\"\n\t\t\t\"wfs_getfeature_formatlist\" \"ogrgml,geojson\"\n\t\tEND\n\tEND\n\n\tMAXSIZE
+    4096\n\n\tLAYER\n\t\tNAME\t\tdem_africa\n\t\tGROUP\t\tdem\n\t\tMETADATA\n\t\t\t\"ows_title\"\t\"dem_africa\"\n\t\t\t\"ows_srs\"\t\"epsg:4326\"\n\t\tEND\n\t\t#DATA\t\t\"/vsicurl/http://pschmitt-test.s3-website-us-east-1.amazonaws.com/lowres/mosaic_z13.tif\"\n\t\tDATA\t\t\"/vsicurl/http://dsm2.alia-space.com:8080/africa.tif\"\n\t\tSTATUS\t\tON\n\t\tTYPE\t\tRASTER\n\n\t\tMINSCALEDENOM
+    31250\n\tEND\n\n\n\t\nEND # mapfile\n"

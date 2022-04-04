@@ -1,0 +1,98 @@
+MAP
+	OUTPUTFORMAT
+      NAME "GEOTIFF_FLOAT"
+      DRIVER 'GDAL/GTiff'
+      MIMETYPE 'image/tiff'
+      IMAGEMODE FLOAT32
+      EXTENSION 'tif'
+    END
+	
+	OUTPUTFORMAT
+        NAME "bil"
+        DRIVER "GDAL/EHdr"
+        MIMETYPE "application/bil32"
+        IMAGEMODE FLOAT32
+        EXTENSION "bil"
+    END
+
+    OUTPUTFORMAT
+        NAME "bil"
+        DRIVER "GDAL/EHdr"
+        MIMETYPE "image/x-bil;bits=32"
+        IMAGEMODE FLOAT32
+        EXTENSION "bil"
+    END
+
+    OUTPUTFORMAT
+        NAME "bil"
+        DRIVER "GDAL/EHdr"
+        MIMETYPE "application/bil16"
+        IMAGEMODE INT16
+        EXTENSION "bil"
+      END
+	
+	
+	#IMAGETYPE FLOAT32
+	#IMAGECOLOR 255 255 255
+
+	# Write log to /var/log/mapserver.stderr (make sure the file exists) to see error log.
+	CONFIG "MS_ERRORFILE" "stderr"
+	#CONFIG "MS_ERRORFILE" "/var/log/mapserver.stderr"
+	#INCLUDE "aws_credentials.inc.map"
+	CONFIG "CPL_VSIL_CURL_ALLOWED_EXTENSIONS" ".tif" # .shp .shx .dbf .qix .cpg .prj
+	CONFIG "VSI_CACHE" "TRUE"
+	# cache size in bytes
+	CONFIG "VSI_CACHE_SIZE" "50000000"
+
+	EXTENT -180 -90 180 90
+
+	PROJECTION
+		# Performance optimization: Instead of specifying 4326, set all the Proj4 parameters directly.
+		# http://mapserver.org/optimization/mapfile.html#projections
+		# http://spatialreference.org/ref/epsg/4326/proj4/
+		"init=epsg:4326"
+		#"proj=longlat"
+		#"ellps=WGS84"
+		#"datum=WGS84"
+		#"no_defs"
+	END
+
+	WEB
+		# Uncomment the following and run `touch /var/log/mapserver_output.log` to see access log.
+		#LOG /var/log/mapserver_output.log
+
+		# Note: You should configure your webserver (ie. NGINX) to use
+		# proxy_pass to forward all Mapserver traffic to
+		# localhost:8080. Otherwise, edit ows_onlineresource
+		# accordingly.
+		METADATA
+			"ows_title" "raster_layer"
+			"ows_onlineresource" "http://localhost:8000?"
+			"ows_srs" "EPSG:4326"
+			"ows_enable_request" "*"
+			"wms_srs" "EPSG:4326"
+			"wms_feature_info_mime_type" "text/html"
+			"wfs_getfeature_formatlist" "ogrgml,geojson"
+		END
+	END
+
+	MAXSIZE 4096
+
+	LAYER
+		NAME		dem_africa
+		GROUP		dem
+		METADATA
+			"ows_title"	"dem_africa"
+			"ows_srs"	"epsg:4326"
+		END
+		#DATA		"/vsicurl/http://pschmitt-test.s3-website-us-east-1.amazonaws.com/lowres/mosaic_z13.tif"
+		DATA		"/vsicurl/http://dsm2.alia-space.com:8080/africa.tif"
+		STATUS		ON
+		TYPE		RASTER
+
+		MINSCALEDENOM 31250
+	END
+
+
+	
+END # mapfile

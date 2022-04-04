@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mapserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mapserver
+  template:
+    metadata:
+      labels:
+        app: mapserver
+    spec:
+      containers:
+        - name: mapserver-s3
+          image: arceo99/mapserver-s3:7.2.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+              name: http
+          resources:
+            limits:
+              cpu: 500m
+              memory: 500Mi
+          volumeMounts:
+            - mountPath: /usr/src/mapfiles/
+              name: mapfile-config
+      volumes:
+        - name: mapfile-config
+          configMap:
+            name: mapfile-config
