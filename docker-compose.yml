@@ -1,12 +1,14 @@
-version: '2.1'
+version: '3.3'
 
 services:
-
   mapserver:
+    # image: mcerolini/mapserver:${MAPSERVER_VERSION}
     build:
       context: .
       args:
         GDAL_VERSION: ${GDAL_VERSION}
         MAPSERVER_VERSION: ${MAPSERVER_VERSION}
-    image: mcerolini/mapserver:${MAPSERVER_VERSION}
-
+    ports: 
+      - "8000:80"
+    volumes: 
+      - ./mapfiles:/usr/src/mapfiles/
