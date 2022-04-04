@@ -2,13 +2,19 @@ version: '3.3'
 
 services:
   mapserver:
-    # image: mcerolini/mapserver:${MAPSERVER_VERSION}
-    build:
-      context: .
-      args:
-        GDAL_VERSION: ${GDAL_VERSION}
-        MAPSERVER_VERSION: ${MAPSERVER_VERSION}
+    image: arceo99/mapserver-s3:${MAPSERVER_VERSION}
+    # build:
+    #  context: .
+    #  args:
+    #    GDAL_VERSION: ${GDAL_VERSION}
+    #    MAPSERVER_VERSION: ${MAPSERVER_VERSION}
     ports: 
       - "8000:80"
     volumes: 
       - ./mapfiles:/usr/src/mapfiles/
+  webserver:
+        image: nginx:1.21.6
+        ports:
+            - 8001:80
+        volumes:
+            - ./data:/usr/share/nginx/html
