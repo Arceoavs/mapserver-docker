@@ -12,6 +12,7 @@ services:
       - "8000:80"
     volumes: 
       - ./mapfiles:/usr/src/mapfiles/
+
   webserver:
         image: nginx:1.21.6
         ports:

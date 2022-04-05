@@ -14,3 +14,7 @@ configMapGenerator:
     namespace: mapserver
     files:
       - "mapfile.map"
+
+
+resources:
+  - ingress.yaml
